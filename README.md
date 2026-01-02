@@ -2,7 +2,8 @@
 The goal of this simple BASH script is to automate the backup of Web virtual hosts on a Web Server using a minimal set of tools. 
 
 # Features
-- Backup one or multiple vhosts and compress the files in a Zip archive ;
+- Backup one or multiple vhosts and compress the files in a 7z archive ;
+- Protect the archives with a custom password ;
 - Set a custom backup location ;
 - Set a custom name for the backups ;
 - Send E-Mail at the end of each step ;
@@ -11,9 +12,10 @@ The goal of this simple BASH script is to automate the backup of Web virtual hos
 The code is made so that it is easy to read and understand and can be adapted to specific use-cases.
 
 # Dependencies
-- The `cron` job scheduler ;
-- The `zip` CLI tool ;
-- A mail transfer agent such as `exim4` or `sendmail` ;
+- The `cron` job scheduler (optional if you prefer using Systemd timers) ;
+- The `p7zip` CLI tool ;
+- The `p7zip-plugins` plugins package ;
+- A mail transfer agent such as `exim4`, `sendmail`, or `ssmtp` ;
 
 # Installation
 1. Clone this repository in you home directory
@@ -40,7 +42,35 @@ $ chmod 700 /path/to/the/.script/web_backup_script.sh && chown root:root /path/t
 ```
 This will execute the script on the first of each month at 0:00.
 
-6. To make sure there are no errors in the script, run it using:
+6. If you prefer using a Systemd timer, you will need to create a timer and a service:
+In webdir-backup.service, add:
+```
+[Unit]
+Description=Run webdir backup script
+
+[Service]
+User=root
+ExecStart= /path/to/the/.script/web_backup_script.sh
+```
+This will execute the webdir-backup script from your scripts directory with root privileges.
+
+
+In webdir-backup.timer, add:
+```
+[Unit]
+Description=Run a webdir backup one time per month
+
+[Timer]
+OnCalendar=*-*-01 00:00:00
+Persistent=true
+Unit=webdir-backup.service
+
+[Install]
+WantedBy=timers.target
+```
+This will execute the webdir-backup service on the first of each month at 0:00.
+
+8. To make sure there are no errors in the script, run it using:
 ```
 # sh /path/to/the/.script/web_backup_script.sh
 ```
