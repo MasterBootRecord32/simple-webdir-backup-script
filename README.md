@@ -18,7 +18,7 @@ The code is made so that it is easy to read and understand and can be adapted to
 - A mail transfer agent such as `exim4`, `sendmail`, or `ssmtp` ;
 
 # Installation
-1. Clone this repository in you home directory
+1. Clone this repository in your home directory ;
 2. Move `web_backup_script.sh` to a dedicated directory (for example, in a .script directory, in your home directory) ;
 3. Edit the file to replace the placeholders with the wanted values:
 
@@ -28,12 +28,12 @@ In VARIABLES, replace at:
 ```
 In BACKUP CREATION & COMPRESSION, replace at:
 ```
-"yourStrongPassword" with your password ;
+"yourStrongPassword"
 ```
 
-4. Give this file execution permissions:
+4. Give the file execution permissions for the owner only and change owner to root:
 ```
-$ chmod 700 /path/to/the/.script/web_backup_script.sh && chown root:root /path/to/the/.script/web_backup_script.sh
+# chmod 700 /path/to/the/.script/web_backup_script.sh && chown root:root /path/to/the/.script/web_backup_script.sh
 ```
 
 5. Edit `/etc/crontab` and at the end, add:
@@ -44,19 +44,19 @@ This will execute the script on the first of each month at 0:00.
 
 6. If you prefer using a Systemd timer, you will need to create a timer and a service:
 
-In webdir-backup.service, add:
+Execute ```# systemctl edit --full --force backup-webdir.service``` to create the service unit and add:
 ```
 [Unit]
-Description=Run webdir backup script
+Description=Run the webdir backup script
 
 [Service]
 User=root
 ExecStart= /path/to/the/.script/web_backup_script.sh
 ```
-This will execute the webdir-backup script from your scripts directory with root privileges.
+This will execute the web_backup_script.sh from your scripts directory with root privileges.
 
 
-In webdir-backup.timer, add:
+Then execute ```# systemctl edit --full --force backup-webdir.timer``` to create the timer unit and add:
 ```
 [Unit]
 Description=Run a webdir backup one time per month
@@ -64,17 +64,28 @@ Description=Run a webdir backup one time per month
 [Timer]
 OnCalendar=*-*-01 00:00:00
 Persistent=true
-Unit=webdir-backup.service
+Unit=backup-webdir.service
 
 [Install]
 WantedBy=timers.target
 ```
-This will execute the webdir-backup service on the first of each month at 0:00.
+This will execute the backup-webdir service on the first of each month at 0:00.
 
-8. To make sure there are no errors in the script, run it using:
+Enable the timer unit using ```# systemctl enable backup-webdir.timer```.
+
+7. To make sure there are no errors in the script, run it using:
 ```
 # sh /path/to/the/.script/web_backup_script.sh
 ```
+
+8. To make sure there are no errors in the timer and service units:
+
+Start the timer manually:
+```
+# systemctl start backup-webdir.timer
+```
+Then check if the task is executed successfully with ```journalctl -xe```.
+
 
 # WARNING !
 THIS SCRIPT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE CODE BE LIABLE FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE CODE OR THE USE OR OTHER DEALINGS IN THE CODE.
