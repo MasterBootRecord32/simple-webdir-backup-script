@@ -1,0 +1,12 @@
+# SYSTEMD TIMER FOR WEBDIR BACKUP
+
+[Unit]
+Description=Run a webdir backup one time per month
+
+[Timer]
+OnCalendar=*-*-01 00:00:00 # Y-M-D HH:MM:SS, RUNS THE SERVICE ON THE FIRST DAY OF EACH MONTH AT 00:00
+Persistent=true # CATCH UP ON MISSED RUNS IF THE SYSTEM WAS OFFLINE
+Unit=backup-webdir.service # SERVICE TO BE TRIGGERED BY THE TIMER
+
+[Install]
+WantedBy=timers.target # ACTIVATES THE TIMER ON SYSTEM STARTUP
