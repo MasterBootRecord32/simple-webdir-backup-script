@@ -1,0 +1,8 @@
+# SYSTEMD SERVICE FOR WEBDIR BACKUP
+
+[Unit]
+Description=Run the webdir backup script
+
+[Service]
+User=root # RUNS THE SCRIPT AS ROOT
+ExecStart= /path/to/the/.script/web_backup_script.sh # LOCATION OF THE SCRIPT TO BE RAN
